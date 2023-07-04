@@ -13,6 +13,9 @@
 		B645C8DA2A53B26F00A1B160 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B645C8D92A53B26F00A1B160 /* Assets.xcassets */; };
 		B645C8DD2A53B26F00A1B160 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B645C8DB2A53B26F00A1B160 /* LaunchScreen.storyboard */; };
 		B645C8E52A53B5EC00A1B160 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = B645C8E42A53B5EC00A1B160 /* Model.swift */; };
+		B645C8E72A53CB2300A1B160 /* UIColor+Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = B645C8E62A53CB2300A1B160 /* UIColor+Random.swift */; };
+		B645C8E92A53D0A200A1B160 /* HeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B645C8E82A53D0A200A1B160 /* HeaderCell.swift */; };
+		B645C8EB2A53D0B200A1B160 /* ListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B645C8EA2A53D0B200A1B160 /* ListCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +27,9 @@
 		B645C8DC2A53B26F00A1B160 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B645C8DE2A53B26F00A1B160 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B645C8E42A53B5EC00A1B160 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
+		B645C8E62A53CB2300A1B160 /* UIColor+Random.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Random.swift"; sourceTree = "<group>"; };
+		B645C8E82A53D0A200A1B160 /* HeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderCell.swift; sourceTree = "<group>"; };
+		B645C8EA2A53D0B200A1B160 /* ListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,9 +66,12 @@
 				B645C8D22A53B26E00A1B160 /* SceneDelegate.swift */,
 				B645C8D42A53B26E00A1B160 /* ViewController.swift */,
 				B645C8E42A53B5EC00A1B160 /* Model.swift */,
+				B645C8E62A53CB2300A1B160 /* UIColor+Random.swift */,
 				B645C8D92A53B26F00A1B160 /* Assets.xcassets */,
 				B645C8DB2A53B26F00A1B160 /* LaunchScreen.storyboard */,
 				B645C8DE2A53B26F00A1B160 /* Info.plist */,
+				B645C8E82A53D0A200A1B160 /* HeaderCell.swift */,
+				B645C8EA2A53D0B200A1B160 /* ListCell.swift */,
 			);
 			path = CollectionLayoutTest;
 			sourceTree = "<group>";
@@ -137,9 +146,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B645C8E72A53CB2300A1B160 /* UIColor+Random.swift in Sources */,
 				B645C8D52A53B26E00A1B160 /* ViewController.swift in Sources */,
 				B645C8D12A53B26E00A1B160 /* AppDelegate.swift in Sources */,
+				B645C8EB2A53D0B200A1B160 /* ListCell.swift in Sources */,
 				B645C8D32A53B26E00A1B160 /* SceneDelegate.swift in Sources */,
+				B645C8E92A53D0A200A1B160 /* HeaderCell.swift in Sources */,
 				B645C8E52A53B5EC00A1B160 /* Model.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
