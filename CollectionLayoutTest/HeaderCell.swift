@@ -12,7 +12,11 @@ class HeaderCell: UICollectionViewCell {
     
     override var isSelected: Bool {
         didSet {
-            selectionView.backgroundColor = isSelected ? .red : .clear
+            selectionView.backgroundColor = isSelected ? .systemGray4 : .clear
+            UIView.animate(withDuration: 0.1) {
+                self.transform = self.isSelected ? CGAffineTransform(scaleX: 1.15, y: 1.15) : .identity
+                self.label.font = .preferredFont(forTextStyle: self.isSelected ? .headline : .body)
+            }
         }
     }
     

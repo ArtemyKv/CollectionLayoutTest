@@ -161,7 +161,7 @@ class ViewController: UIViewController {
         
         let section = NSCollectionLayoutSection(group: group)
         
-        let headerItemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(44))
+        let headerItemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(52))
         let headerItem = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerItemSize,
                                                                      elementKind: ViewController.secondSectionHeaderElementKind,
                                                                      alignment: .top)
@@ -180,7 +180,7 @@ class ViewController: UIViewController {
         
         let section = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .groupPaging
-        section.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8)
         
         let layout = UICollectionViewCompositionalLayout(section: section)
         return layout
@@ -221,7 +221,7 @@ extension ViewController: UICollectionViewDelegate {
             {
                 let matchingHeaderItemIndexPath = IndexPath(row: matchingHeaderItemIndex, section: 0)
 //                headerCollectionView.scrollToItem(at: matchingHeaderItemIndexPath, at: .top, animated: true)
-                headerCollectionView.selectItem(at: matchingHeaderItemIndexPath, animated: true, scrollPosition: .top)
+                headerCollectionView.selectItem(at: matchingHeaderItemIndexPath, animated: true, scrollPosition: .centeredHorizontally)
             }
         }
     }
