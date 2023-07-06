@@ -9,29 +9,38 @@ import UIKit
 
 class ViewController: UIViewController {
     
+    static let secondSectionHeaderElementKind = "second-section-header-element-kind"
+    
     typealias DataSource = UICollectionViewDiffableDataSource<Section, Item>
     typealias Snapshot = NSDiffableDataSourceSnapshot<Section, Item>
     
     var collectionView: UICollectionView!
     var dataSource: DataSource!
     
-    var listItems: [ListItem] = []
+    var headerCollectionView: UICollectionView!
+    var headerCollectionViewDataSource: HeaderCollectionViewDataSource!
+    
+    var firstSectionItems: [ListItem] = []
+    var secondSectionItems: [ListItem] = []
     var headerItems: [HeaderItem] = []
     
+    var isScrollingToSelectedHeaderNumber: Bool = false
+    
     enum Section: CaseIterable {
-        case header
-        case main
+        case first
+        case second
     }
     
     enum Item: Hashable {
-        case header(HeaderItem)
-        case list(ListItem)
+        case firstSectionItem(ListItem)
+        case secondSectionItem(ListItem)
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         makeModelData()
+        setupHeaderCollectionView()
         setupCollectionView()
         registerCells()
         setupDataSource()
@@ -40,8 +49,15 @@ class ViewController: UIViewController {
     }
     
     func makeModelData() {
-        listItems = ListItem.makeListItems(count: 100)
+        firstSectionItems = ListItem.makeListItems(count: 30)
+        secondSectionItems = ListItem.makeListItems(count: 100)
         headerItems = HeaderItem.makeHeaderItems()
+    }
+    
+    func setupHeaderCollectionView() {
+        let headerDataSource = HeaderCollectionViewDataSource()
+        headerDataSource.headerItems = headerItems
+        self.headerCollectionViewDataSource = headerDataSource
     }
     
     func setupCollectionView() {
@@ -61,22 +77,42 @@ class ViewController: UIViewController {
     
     func registerCells() {
         collectionView.register(ListCell.self, forCellWithReuseIdentifier: ListCell.identifier)
-        collectionView.register(HeaderCell.self, forCellWithReuseIdentifier: HeaderCell.identifier)
+        collectionView.register(
+            HeaderView.self,
+            forSupplementaryViewOfKind: ViewController.secondSectionHeaderElementKind,
+            withReuseIdentifier: HeaderView.identifier
+        )
     }
     
     func setupDataSource() {
         let dataSource = DataSource(collectionView: collectionView) { collectionView, indexPath, itemIdentifier in
             switch itemIdentifier {
-            case .header(let headerItem):
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: HeaderCell.identifier, for: indexPath) as! HeaderCell
-                cell.configure(with: headerItem)
+            case .firstSectionItem(let listItem):
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ListCell.identifier, for: indexPath) as! ListCell
+                cell.configure(with: listItem)
                 return cell
-            case .list(let listItem):
+            case .secondSectionItem(let listItem):
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ListCell.identifier, for: indexPath) as! ListCell
                 cell.configure(with: listItem)
                 return cell
             }
         }
+        
+        dataSource.supplementaryViewProvider = { collectionView, elementKind, indexPath in
+            let headerView = collectionView.dequeueReusableSupplementaryView(
+                ofKind: Self.secondSectionHeaderElementKind,
+                withReuseIdentifier: HeaderView.identifier, for: indexPath
+            ) as! HeaderView
+            
+            headerView.collectionView.dataSource = self.headerCollectionViewDataSource
+            headerView.collectionView.collectionViewLayout = self.headerCollectionViewLayout()
+            headerView.collectionView.delegate = self
+            self.headerCollectionView = headerView.collectionView
+            self.headerCollectionView.selectItem(at: IndexPath(row: 0, section: 0), animated: false, scrollPosition: .top)
+
+            return headerView
+        }
+        
         self.dataSource = dataSource
         collectionView.dataSource = dataSource
     }
@@ -84,29 +120,38 @@ class ViewController: UIViewController {
     func setupLayout() {
         let layout = UICollectionViewCompositionalLayout { sectionIndex, environment in
             if sectionIndex == 0 {
-                return self.headerLayoutSection()
+                return self.firstSectionLayout()
             } else {
-                return self.listLayoutSection()
+                return self.secondSectionLayout()
             }
         }
         collectionView.collectionViewLayout = layout
     }
     
-    func headerLayoutSection() -> NSCollectionLayoutSection {
-        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1))
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        item.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 4, bottom: 4, trailing: 4)
+    func firstSectionLayout() -> NSCollectionLayoutSection {
+        let leadingItemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.5), heightDimension: .fractionalWidth(1.0))
+        let leadingItem = NSCollectionLayoutItem(layoutSize: leadingItemSize)
+        leadingItem.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 8)
         
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.25), heightDimension: .absolute(44))
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+        let trailingItemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(0.5))
+        let trailingItem = NSCollectionLayoutItem(layoutSize: trailingItemSize)
         
-        let section = NSCollectionLayoutSection(group: group)
-        section.orthogonalScrollingBehavior = .continuous
-        section.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8)
+        let nestedGroupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.5), heightDimension: .fractionalWidth(1.0))
+        let nestedGroup = NSCollectionLayoutGroup.vertical(layoutSize: nestedGroupSize, subitem: trailingItem, count: 2)
+        nestedGroup.interItemSpacing = .fixed(8)
+        
+        let containerGroupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalWidth(1.0))
+        let containerGroup = NSCollectionLayoutGroup.horizontal(layoutSize: containerGroupSize, subitems: [leadingItem, nestedGroup])
+        containerGroup.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8)
+        
+        let section = NSCollectionLayoutSection(group: containerGroup)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0)
+        section.orthogonalScrollingBehavior = .groupPaging
+        
         return section
     }
-    
-    func listLayoutSection() -> NSCollectionLayoutSection {
+        
+    func secondSectionLayout() -> NSCollectionLayoutSection {
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         item.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8)
@@ -115,33 +160,75 @@ class ViewController: UIViewController {
         let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
+        
+        let headerItemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(44))
+        let headerItem = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerItemSize,
+                                                                     elementKind: ViewController.secondSectionHeaderElementKind,
+                                                                     alignment: .top)
+        headerItem.pinToVisibleBounds = true
+        section.boundarySupplementaryItems = [headerItem]
         return section
+    }
+    
+    func headerCollectionViewLayout() -> UICollectionViewCompositionalLayout {
+        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1))
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.25), heightDimension: .fractionalHeight(1.0))
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+        group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16)
+        
+        let section = NSCollectionLayoutSection(group: group)
+        section.orthogonalScrollingBehavior = .groupPaging
+        section.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8)
+        
+        let layout = UICollectionViewCompositionalLayout(section: section)
+        return layout
     }
     
     func applySnapshot() {
         var snapshot = Snapshot()
         snapshot.appendSections(Section.allCases)
-        snapshot.appendItems(headerItems.map { .header($0) }, toSection: .header)
-        snapshot.appendItems(listItems.map { .list($0) }, toSection: .main)
+        snapshot.appendItems(firstSectionItems.map { .firstSectionItem($0) }, toSection: .first)
+        snapshot.appendItems(secondSectionItems.map { .secondSectionItem($0) }, toSection: .second)
         self.dataSource.apply(snapshot)
     }
 }
 
 extension ViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if collectionView == self.collectionView {
+            print("Main collectionView")
+        } else if collectionView == headerCollectionView {
+            isScrollingToSelectedHeaderNumber = true
+            let item = headerItems[indexPath.row]
+            self.collectionView.scrollToItem(at: IndexPath(row: item.number, section: 1), at: .top, animated: true)
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        guard collectionView == self.collectionView else { return }
+        
         let section = dataSource.snapshot().sectionIdentifiers[indexPath.section]
-        switch section {
-        case .header:
-            let item = dataSource.snapshot().itemIdentifiers(inSection: .header)[indexPath.row]
-            switch item {
-            case .header(let headerItem):
-                collectionView.scrollToItem(at: IndexPath(item: headerItem.number, section: 1), at: .top, animated: true)
-            default: return 
+        let item = dataSource.snapshot().itemIdentifiers(inSection: section)[indexPath.row]
+        
+        switch item {
+        case .firstSectionItem:
+            return
+        case .secondSectionItem(let listItem):
+            if let matchingHeaderItemIndex = headerItems.enumerated().filter({ $0.element.number == listItem.number}).first?.offset, headerCollectionView != nil,
+               isScrollingToSelectedHeaderNumber == false
+            {
+                let matchingHeaderItemIndexPath = IndexPath(row: matchingHeaderItemIndex, section: 0)
+//                headerCollectionView.scrollToItem(at: matchingHeaderItemIndexPath, at: .top, animated: true)
+                headerCollectionView.selectItem(at: matchingHeaderItemIndexPath, animated: true, scrollPosition: .top)
             }
-        case .main:
-            let item = listItems[indexPath.row]
-            print("Item with number \(item.number) selected")
-            //do nothing
+        }
+    }
+    
+    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        if scrollView == collectionView as UIScrollView {
+            isScrollingToSelectedHeaderNumber = false
         }
     }
 }
