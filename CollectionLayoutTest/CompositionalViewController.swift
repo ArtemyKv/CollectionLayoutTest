@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class CompositionalViewController: UIViewController {
     
     static let secondSectionHeaderElementKind = "second-section-header-element-kind"
     
@@ -79,7 +79,7 @@ class ViewController: UIViewController {
         collectionView.register(ListCell.self, forCellWithReuseIdentifier: ListCell.identifier)
         collectionView.register(
             HeaderView.self,
-            forSupplementaryViewOfKind: ViewController.secondSectionHeaderElementKind,
+            forSupplementaryViewOfKind: CompositionalViewController.secondSectionHeaderElementKind,
             withReuseIdentifier: HeaderView.identifier
         )
     }
@@ -163,7 +163,7 @@ class ViewController: UIViewController {
         
         let headerItemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(52))
         let headerItem = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerItemSize,
-                                                                     elementKind: ViewController.secondSectionHeaderElementKind,
+                                                                     elementKind: CompositionalViewController.secondSectionHeaderElementKind,
                                                                      alignment: .top)
         headerItem.pinToVisibleBounds = true
         section.boundarySupplementaryItems = [headerItem]
@@ -195,7 +195,7 @@ class ViewController: UIViewController {
     }
 }
 
-extension ViewController: UICollectionViewDelegate {
+extension CompositionalViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == self.collectionView {
             print("Main collectionView")
@@ -216,7 +216,8 @@ extension ViewController: UICollectionViewDelegate {
         case .firstSectionItem:
             return
         case .secondSectionItem(let listItem):
-            if let matchingHeaderItemIndex = headerItems.enumerated().filter({ $0.element.number == listItem.number}).first?.offset, headerCollectionView != nil,
+            if let matchingHeaderItemIndex = headerItems.enumerated().filter({ $0.element.number == listItem.number}).first?.offset,
+               headerCollectionView != nil,
                isScrollingToSelectedHeaderNumber == false
             {
                 let matchingHeaderItemIndexPath = IndexPath(row: matchingHeaderItemIndex, section: 0)
